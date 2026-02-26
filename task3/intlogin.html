@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interactive Login</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#4facfe,#00c6ff);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+.login-card{
+    width:380px;
+    padding:35px;
+    border-radius:20px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    color:white;
+    animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+h2{
+    text-align:center;
+    margin-bottom:25px;
+    font-weight:600;
+}
+
+/* Floating Input */
+.form-floating input{
+    border-radius:10px;
+    border:none;
+}
+
+.form-floating label{
+    color:#555;
+}
+
+.form-control:focus{
+    box-shadow:0 0 0 2px rgba(255,255,255,0.6);
+}
+
+/* Button */
+.btn-login{
+    background:white;
+    color:#007bff;
+    border-radius:10px;
+    font-weight:bold;
+    padding:10px;
+    transition:0.3s;
+    position:relative;
+    overflow:hidden;
+}
+
+.btn-login:hover{
+    background:#007bff;
+    color:white;
+}
+
+/* Ripple */
+.btn-login:active::after{
+    content:"";
+    position:absolute;
+    width:200px;
+    height:200px;
+    background:rgba(255,255,255,0.4);
+    border-radius:50%;
+    transform:scale(0);
+    animation:ripple 0.6s linear;
+}
+
+@keyframes ripple{
+    to{
+        transform:scale(3);
+        opacity:0;
+    }
+}
+
+/* Messages */
+.error{
+    color:#ffdede;
+    text-align:center;
+    margin-top:10px;
+    display:none;
+}
+
+.success{
+    color:#d4ffea;
+    text-align:center;
+    margin-top:10px;
+    display:none;
+}
+
+/* Shake */
+.shake{
+    animation:shake 0.4s;
+}
+
+@keyframes shake{
+    0%{transform:translateX(0);}
+    25%{transform:translateX(-5px);}
+    50%{transform:translateX(5px);}
+    75%{transform:translateX(-5px);}
+    100%{transform:translateX(0);}
+}
+
+/* Password eye */
+.eye{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    color:#666;
+}
+
+.position-relative{
+    position:relative;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="login-card" id="card">
+
+<h2>🔐 Login</h2>
+
+<form id="loginForm">
+
+<div class="form-floating mb-3">
+    <input type="email" class="form-control" id="email" placeholder="Email">
+    <label>Email address</label>
+</div>
+
+<div class="form-floating mb-3 position-relative">
+    <input type="password" class="form-control" id="password" placeholder="Password">
+    <label>Password</label>
+    <span class="eye" onclick="togglePassword()">👁️</span>
+</div>
+
+<button class="btn btn-login w-100">Login</button>
+
+</form>
+
+<div id="errorMsg" class="error">Invalid Credentials</div>
+<div id="successMsg" class="success">Login Successful 🎉</div>
+
+</div>
+
+<script>
+
+/* Fake Database */
+const users = [
+    {email:"admin@gmail.com", password:"12345"},
+    {email:"user@gmail.com", password:"user123"}
+];
+
+/* Toggle Password */
+function togglePassword(){
+    let pass = document.getElementById("password");
+    pass.type = pass.type === "password" ? "text" : "password";
+}
+
+/* Login */
+document.getElementById("loginForm").addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    let email = emailInput.value.trim();
+    let password = passwordInput.value.trim();
+
+});
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+document.getElementById("loginForm").addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    let email = emailInput.value.trim();
+    let password = passwordInput.value.trim();
+
+    let user = users.find(u=>u.email===email && u.password===password);
+
+    if(user){
+        successMsg.style.display="block";
+        errorMsg.style.display="none";
+    }else{
+        errorMsg.style.display="block";
+        successMsg.style.display="none";
+
+        document.getElementById("card").classList.add("shake");
+        setTimeout(()=>card.classList.remove("shake"),400);
+    }
+
+});
+
+</script>
+
+</body>
+</html>
