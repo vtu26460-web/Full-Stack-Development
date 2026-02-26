@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Retrieval & Sorting Dashboard</title>
+
+    <!-- SQL.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 70%;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+
+        select, button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Student Data Retrieval & Sorting Dashboard</h2>
+
+<select id="deptFilter">
+    <option value="All">All</option>
+    <option value="Computer Science">Computer Science</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Mechanical">Mechanical</option>
+</select>
+
+<button onclick="loadData('name')">Sort by Name</button>
+<button onclick="loadData('date')">Sort by Date</button>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Join Date</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<h3>Students per Department</h3>
+<ul id="countList"></ul>
+
+<script>
+let db;
+
+initSqlJs({
+    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+}).then(SQL => {
+
+    db = new SQL.Database();
+
+    // Create table
+    db.run(`
+        CREATE TABLE students (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            department TEXT,
+            join_date TEXT
+        );
+    `);
+
+    // Insert data
+    db.run(`
+        INSERT INTO students (name, department, join_date) VALUES
+        ('Alice', 'Computer Science', '2023-01-10'),
+        ('Bob', 'Electronics', '2022-08-15'),
+        ('Charlie', 'Computer Science', '2023-03-20'),
+        ('David', 'Mechanical', '2021-07-11'),
+        ('Eva', 'Electronics', '2022-11-05');
+    `);
+
+    loadData();
+});
+
+function loadData(sort = "") {
+    const dept = document.getElementById("deptFilter").value;
+
+    let query = "SELECT * FROM students";
+    let conditions = [];
+
+    if (dept !== "All") {
+        conditions.push(`department='${dept}'`);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
+    if (sort === "name") query += " ORDER BY name";
+    if (sort === "date") query += " ORDER BY join_date";
+
+    const result = db.exec(query);
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    if (result.length > 0) {
+        result[0].values.forEach(row => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${row[1]}</td>
+                    <td>${row[2]}</td>
+                    <td>${row[3]}</td>
+                </tr>
+            `;
+        });
+    }
+
+    loadCount();
+}
+
+function loadCount() {
+    const result = db.exec(`
+        SELECT department, COUNT(*) FROM students GROUP BY department
+    `);
+
+    const list = document.getElementById("countList");
+    list.innerHTML = "";
+
+    result[0].values.forEach(row => {
+        list.innerHTML += `<li>${row[0]}: ${row[1]}</li>`;
+    });
+}
+
+document.getElementById("deptFilter").addEventListener("change", () => loadData());
+</script>
+
+</body>
+</html>
