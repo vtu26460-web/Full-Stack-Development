@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard - Nexus Jobs</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/profile/edit" class="btn">Edit Profile</a>
+            <a href="/jobs" class="btn btn-accent">Find Jobs</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        </div>
+    </nav>
+    <div class="container">
+        <div th:if="${param.applied_success != null}" class="alert alert-success">
+            Application submitted successfully.
+        </div>
+        <div th:if="${param.profile_updated != null}" class="alert alert-success">
+            Profile updated successfully.
+        </div>
+
+        <h2>Welcome, <span th:text="${user.fullName}"></span>!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Track your applications and activities.</p>
+        
+        <div class="glass-card">
+            <h3>My Applications</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="app : ${myApplications}">
+                        <td th:text="${app.job.title}"></td>
+                        <td th:text="${app.job.employer.fullName}"></td>
+                        <td th:text="${#temporals.format(app.appliedDate, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td><strong th:text="${app.status}" th:style="${app.status == 'REJECTED' ? 'color: var(--danger);' : (app.status == 'SHORTLISTED' ? 'color: var(--accent);' : 'color: var(--primary);')}"></strong></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(myApplications)}">
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">You haven't applied to any jobs yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

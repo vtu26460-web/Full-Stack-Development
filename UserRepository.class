@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Board - Nexus Jobs</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        function filterJobs() {
+            let searchInput = document.getElementById('jobSearch').value.toLowerCase();
+            let typeInput = document.getElementById('typeSearch').value.toLowerCase();
+            let cards = document.getElementsByClassName('job-card');
+            
+            for (let i = 0; i < cards.length; i++) {
+                let textContent = cards[i].textContent || cards[i].innerText;
+                let jobTypeEl = cards[i].querySelector('.job-type-badge');
+                let jobTypeText = jobTypeEl ? jobTypeEl.innerText.toLowerCase() : "";
+                
+                let matchesSearch = textContent.toLowerCase().indexOf(searchInput) > -1;
+                let matchesType = typeInput === "" || jobTypeText.indexOf(typeInput) > -1;
+                
+                if (matchesSearch && matchesType) {
+                    cards[i].style.display = "";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/dashboard" class="btn">Dashboard</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        </div>
+    </nav>
+    <div class="container">
+        <div th:if="${param.error == 'Resume_Required'}" class="alert alert-error">
+            Resume upload is required before applying.
+        </div>
+        <div th:if="${param.error == 'Upload_Failed'}" class="alert alert-error">
+            Resume upload failed. Please try again.
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Available Jobs</h2>
+            <div style="display: flex; gap: 1rem;">
+                <select id="typeSearch" onchange="filterJobs()" class="form-control" style="width: 200px;">
+                    <option value="">All Job Types</option>
+                    <option value="Full-Time">Full-Time</option>
+                    <option value="Part-Time">Part-Time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                    <option value="Freelance">Freelance</option>
+                </select>
+                <input type="text" id="jobSearch" onkeyup="filterJobs()" class="form-control" placeholder="Search for jobs..." style="width: 300px;">
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div th:each="job : ${jobs}" class="job-card glass-card" style="padding: 1.5rem;">
+                <h3 th:text="${job.title}" style="color: var(--primary); margin-bottom: 0.5rem; display: inline-block;">Job Title</h3>
+                <span th:if="${job.jobType != null}" th:text="${job.jobType}" class="job-type-badge" style="background-color: var(--accent); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem; vertical-align: top;">Job Type</span>
+                <h4 style="margin-bottom: 1rem;">
+                    <a th:href="@{/company/{id}(id=${job.employer.id})}" th:text="${job.employer.fullName}" style="color: var(--text-muted); text-decoration: none;">Company</a>
+                </h4>
+                <p th:text="${job.description}" style="margin-bottom: 1rem;"></p>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Location: </strong> <span th:text="${job.location}"></span><br/>
+                    <strong>Salary: </strong> <span th:text="${job.salary}"></span><br/>
+                    <strong>Skills: </strong> <small th:text="${job.skillsRequired}"></small>
+                </div>
+                <!-- Apply Form -->
+                <form th:action="@{/applications/apply/{jobId}(jobId=${job.id})}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Upload Resume (Required)</label>
+                        <input type="file" name="resume" class="form-control" required style="padding: 0.5rem;">
+                    </div>
+                    <button type="submit" class="btn btn-accent" style="width: 100%;">Apply Now</button>
+                </form>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(jobs)}" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
+                No jobs available at the moment. Check back later!
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

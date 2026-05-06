@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Post a Job - Nexus Jobs</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/dashboard" class="btn">Back to Dashboard</a>
+        </div>
+    </nav>
+    <div class="container" style="display: flex; align-items: center; justify-content: center;">
+        <div class="glass-card" style="width: 100%; max-width: 600px; margin: 4rem auto;">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Post a New Job</h2>
+            <form th:action="@{/jobs/post}" th:object="${job}" method="post">
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" th:field="*{title}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description (Markdown/Text)</label>
+                    <textarea th:field="*{description}" class="form-control" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Skills Required</label>
+                    <input type="text" th:field="*{skillsRequired}" class="form-control" placeholder="e.g. Java, React, SQL" required>
+                </div>
+                <div class="form-group">
+                    <label>Salary Range</label>
+                    <input type="text" th:field="*{salary}" class="form-control" placeholder="e.g. $60k - $80k">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" th:field="*{location}" class="form-control" placeholder="e.g. New York, Remote" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Type</label>
+                    <select th:field="*{jobType}" class="form-control" required>
+                        <option value="">Select Job Type...</option>
+                        <option value="Full-Time">Full-Time</option>
+                        <option value="Part-Time">Part-Time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Freelance">Freelance</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-accent" style="width: 100%;">Create Job</button>
+            </form>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

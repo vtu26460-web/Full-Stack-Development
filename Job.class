@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employer Dashboard - Nexus Jobs</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/profile/edit" class="btn">Edit Profile</a>
+            <a href="/jobs/post" class="btn btn-accent">Post a Job</a>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        </div>
+    </nav>
+    <div class="container">
+        <div th:if="${param.status_update_success != null}" class="alert alert-success">
+            Status updated and notification email sent successfully.
+        </div>
+        <div th:if="${param.profile_updated != null}" class="alert alert-success">
+            Company profile updated successfully.
+        </div>
+        <div th:if="${param.status_updated_email_failed != null}" class="alert alert-error">
+            Status updated, but email notification could not be sent.
+            <span th:if="${#strings.equals(#request.getParameter('mail_error'), 'AUTH')}"> SMTP authentication failed. For Gmail, use an App Password (Google Account → Security → 2-Step Verification → App passwords), not your normal password.</span>
+            <span th:if="${#strings.equals(#request.getParameter('mail_error'), 'CONNECTION')}"> Could not connect to SMTP server. Check internet, firewall, and that port 587 is allowed.</span>
+            <span th:if="${#strings.equals(#request.getParameter('mail_error'), 'STUDENT_EMAIL')}"> The applicant has no email on file; add an email to their profile or skip mail for that user.</span>
+            <span th:if="${#strings.equals(#request.getParameter('mail_error'), 'CONFIG')}"> Mail is not configured. Set spring.mail.username and spring.mail.password (or MAIL_USERNAME / MAIL_PASSWORD).</span>
+            <span th:if="${#strings.equals(#request.getParameter('mail_error'), 'UNKNOWN')}"> Check the server console or logs for the exact SMTP error.</span>
+        </div>
+        <div th:if="${param.error == 'Status_Update_Failed'}" class="alert alert-error">
+            Could not update application status. Please try again.
+        </div>
+        <div th:if="${param.error == 'Unauthorized'}" class="alert alert-error">
+            You are not authorized to update this application.
+        </div>
+
+        <h2>Welcome, <span th:text="${user.fullName}"></span>!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Manage your job postings and applicants below.</p>
+
+        <div class="grid" style="margin-bottom: 2rem;">
+            <div class="glass-card" style="padding: 1rem;">
+                <h3 style="margin: 0;">Applications Received</h3>
+                <p style="font-size: 2rem; margin: 0.5rem 0;" th:text="${applicationCount}">0</p>
+            </div>
+            <div class="glass-card" style="padding: 1rem;">
+                <h3 style="margin: 0;">Shortlisted Candidates</h3>
+                <p style="font-size: 2rem; margin: 0.5rem 0;" th:text="${shortlistedCount}">0</p>
+            </div>
+        </div>
+        
+        <div class="glass-card" style="margin-bottom: 2rem;">
+            <h3>My Job Postings</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Job Type</th>
+                        <th>Location</th>
+                        <th>Salary</th>
+                        <th>Skills</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="job : ${jobs}">
+                        <td th:text="${job.title}"></td>
+                        <td th:text="${job.jobType}"></td>
+                        <td th:text="${job.location}"></td>
+                        <td th:text="${job.salary}"></td>
+                        <td th:text="${job.skillsRequired}"></td>
+                        <td>
+                            <form th:action="@{/jobs/{id}/delete(id=${job.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="glass-card">
+            <h3>Recent Applications</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Student Name</th>
+                        <th>Resume</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="app : ${applications}">
+                        <td th:text="${app.job.title}"></td>
+                        <td>
+                            <a th:href="@{/student/{id}(id=${app.student.id})}" th:text="${app.student.fullName}" style="color: var(--primary); font-weight: bold; text-decoration: none;">Student Name</a>
+                        </td>
+                        <td>
+                            <a th:if="${app.resumePath != null}" th:href="@{/applications/resume/{appId}(appId=${app.id})}" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Download</a>
+                            <span th:unless="${app.resumePath != null}">N/A</span>
+                        </td>
+                        <td><strong th:text="${app.status}" th:style="${app.status == 'REJECTED' ? 'color: var(--danger);' : (app.status == 'SHORTLISTED' ? 'color: var(--accent);' : 'color: var(--primary);')}"></strong></td>
+                        <td>
+                            <form th:if="${app.status == 'APPLIED'}" th:action="@{/applications/{appId}/status(appId=${app.id})}" method="post" style="display: flex; gap: 0.5rem;">
+                                <button type="submit" name="status" value="SHORTLISTED" class="btn btn-accent" style="padding: 0.5rem 1rem;">Shortlist</button>
+                                <button type="submit" name="status" value="REJECTED" class="btn btn-danger" style="padding: 0.5rem 1rem;">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

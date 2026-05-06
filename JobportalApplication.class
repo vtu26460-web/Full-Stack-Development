@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${employer.fullName + ' - Company Profile'}">Company Profile</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/jobs" class="btn">Back to Jobs</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="glass-card" style="margin-bottom: 2rem;">
+            <h1 th:text="${employer.fullName}">Company Name</h1>
+            
+            <div th:if="${employer.website}" style="margin-bottom: 1rem;">
+                <strong>Website: </strong>
+                <a th:href="${employer.website}" target="_blank" th:text="${employer.website}" style="color: var(--accent);"></a>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <h3>About Us</h3>
+                <p th:if="${employer.companyDescription}" th:text="${employer.companyDescription}" style="white-space: pre-wrap;"></p>
+                <p th:unless="${employer.companyDescription}" style="color: var(--text-muted);">This company hasn't added a description yet.</p>
+            </div>
+        </div>
+
+        <h3>Active Job Postings</h3>
+        <div class="grid">
+            <div th:each="job : ${employer.postedJobs}" class="job-card glass-card" style="padding: 1.5rem;">
+                <h3 th:text="${job.title}" style="color: var(--primary); margin-bottom: 0.5rem; display: inline-block;">Job Title</h3>
+                <span th:if="${job.jobType != null}" th:text="${job.jobType}" class="job-type-badge" style="background-color: var(--accent); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem; vertical-align: top;">Job Type</span>
+                <p th:text="${job.description}" style="margin-top: 1rem; margin-bottom: 1rem;"></p>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Location: </strong> <span th:text="${job.location}"></span><br/>
+                    <strong>Salary: </strong> <span th:text="${job.salary}"></span><br/>
+                    <strong>Skills: </strong> <small th:text="${job.skillsRequired}"></small>
+                </div>
+                <!-- Apply Form -->
+                <form th:action="@{/applications/apply/{jobId}(jobId=${job.id})}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Upload Resume (Required)</label>
+                        <input type="file" name="resume" class="form-control" required style="padding: 0.5rem;">
+                    </div>
+                    <button type="submit" class="btn btn-accent" style="width: 100%;">Apply Now</button>
+                </form>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(employer.postedJobs)}" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
+                This company has no active job postings.
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

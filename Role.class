@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error - Nexus Jobs</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center;">
+    <div class="glass-card" style="text-align: center;">
+        <h1 style="color: var(--danger); margin-bottom: 1rem;">Oops! Something went wrong.</h1>
+        <p th:text="${errorMsg} ?: 'An unexpected error occurred.'" style="color: var(--text-muted); margin-bottom: 2rem;"></p>
+        <a href="/" class="btn">Return Home</a>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

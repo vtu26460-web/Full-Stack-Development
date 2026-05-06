@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="chatbot">
+    <div id="nexbot-anchor" aria-hidden="true"></div>
+    <script defer src="/js/chatbot.js"></script>
+</th:block>
+</body>
+</html>

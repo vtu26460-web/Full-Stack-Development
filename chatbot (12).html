@@ -1,0 +1,40 @@
+spring.application.name=jobportal
+
+# H2 Database settings for prototyping
+spring.datasource.url=jdbc:h2:file:./data/jobportal
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# JPA settings
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# File upload properties
+spring.servlet.multipart.max-file-size=5MB
+spring.servlet.multipart.max-request-size=5MB
+upload.dir=uploads/
+
+# SMTP (Gmail: use App Password with 2-Step Verification — not your login password.)
+# Prefer environment variables so credentials are not committed:
+#   SPRING_MAIL_USERNAME=you@gmail.com   SPRING_MAIL_PASSWORD=your_app_password
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=navyasrichalla50@gmail.com
+spring.mail.password=ftmjezrlmxvovjlz
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.properties.mail.smtp.ssl.trust=smtp.gmail.com
+
+# Helpful timeouts to avoid long hangs during SMTP issues
+spring.mail.properties.mail.smtp.connectiontimeout=5000
+spring.mail.properties.mail.smtp.timeout=5000
+spring.mail.properties.mail.smtp.writetimeout=5000
+
+# TEMP: enable mail debug logs (turn off after fixing)
+logging.level.org.springframework.mail=DEBUG
+logging.level.org.eclipse.angus.mail=DEBUG

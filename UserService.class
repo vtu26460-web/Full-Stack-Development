@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${student.fullName + ' - Student Profile'}">Student Profile</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/dashboard" class="btn">Back to Dashboard</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="glass-card" style="margin-bottom: 2rem; max-width: 800px; margin: 0 auto;">
+            <h1 th:text="${student.fullName}">Student Name</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;" th:text="${student.email}">student@example.com</p>
+            
+            <div th:if="${student.skills}" style="margin-bottom: 2rem;">
+                <h3>Skills</h3>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <span th:each="skill : ${#strings.arraySplit(student.skills, ',')}" 
+                          th:text="${#strings.trim(skill)}" 
+                          style="background-color: var(--accent); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem;">
+                        Skill
+                    </span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <h3>About Me</h3>
+                <p th:if="${student.bio}" th:text="${student.bio}" style="white-space: pre-wrap; line-height: 1.6;"></p>
+                <p th:unless="${student.bio}" style="color: var(--text-muted);">This candidate hasn't added a biography yet.</p>
+            </div>
+            
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

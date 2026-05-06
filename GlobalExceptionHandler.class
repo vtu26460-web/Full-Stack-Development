@@ -1,0 +1,134 @@
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "nexbot-open";
+
+  function createEl(tag, className, attrs) {
+    var el = document.createElement(tag);
+    if (className) el.className = className;
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        el.setAttribute(k, attrs[k]);
+      });
+    }
+    return el;
+  }
+
+  function mount() {
+    var anchor =
+      document.getElementById("nexbot-anchor") || document.body;
+    var root = createEl("div", "nexbot", { role: "region", "aria-label": "Assistant chat" });
+    anchor.parentNode.insertBefore(root, anchor.nextSibling);
+
+    var btn = createEl("button", "nexbot-toggle", {
+      type: "button",
+      "aria-expanded": "false",
+      "aria-controls": "nexbot-panel",
+      title: "Open assistant",
+    });
+    btn.innerHTML =
+      '<span class="nexbot-toggle-inner"><span class="nexbot-dot"></span>Nova</span>';
+
+    var panel = createEl("div", "nexbot-panel", {
+      id: "nexbot-panel",
+      hidden: "",
+      role: "dialog",
+      "aria-modal": "false",
+      "aria-labelledby": "nexbot-heading",
+    });
+    panel.innerHTML =
+      '<div class="nexbot-panel-head">' +
+      '<div><div class="nexbot-badge">Nexus Jobs</div><strong id="nexbot-heading">Nova</strong><div class="nexbot-sub">Your little careers helper</div></div>' +
+      '<button type="button" class="nexbot-close" aria-label="Close chat">&times;</button></div>' +
+      '<div class="nexbot-messages" aria-live="polite"></div>' +
+      '<form class="nexbot-form">' +
+      '<label class="nexbot-sr" for="nexbot-input">Message</label>' +
+      '<input id="nexbot-input" class="nexbot-input form-control" type="text" autocomplete="off" placeholder="Ask about jobs, applying, hiring…">' +
+      '<button type="submit" class="btn nexbot-send">Send</button></form>';
+
+    root.appendChild(panel);
+    root.appendChild(btn);
+
+    var messagesEl = panel.querySelector(".nexbot-messages");
+    var form = panel.querySelector(".nexbot-form");
+    var input = panel.querySelector("#nexbot-input");
+    var closeBtn = panel.querySelector(".nexbot-close");
+
+    function addBubble(text, fromUser) {
+      var wrap = createEl("div", "nexbot-bubble-row " + (fromUser ? "from-user" : "from-bot"));
+      var bubble = createEl("div", "nexbot-bubble");
+      bubble.textContent = text;
+      wrap.appendChild(bubble);
+      messagesEl.appendChild(wrap);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setOpen(open) {
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) {
+        panel.removeAttribute("hidden");
+        btn.classList.add("nexbot-hidden");
+        localStorage.setItem(STORAGE_KEY, "1");
+        setTimeout(function () {
+          input.focus();
+        }, 50);
+      } else {
+        panel.setAttribute("hidden", "");
+        btn.classList.remove("nexbot-hidden");
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    if (localStorage.getItem(STORAGE_KEY) === "1") setOpen(true);
+
+    btn.addEventListener("click", function () {
+      setOpen(true);
+      if (messagesEl.children.length === 0) {
+        addBubble(
+          "Hi—I’m Nova. Ask me how to browse jobs, apply, or post a listing.",
+          false
+        );
+      }
+    });
+    closeBtn.addEventListener("click", function () {
+      setOpen(false);
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var text = (input.value || "").trim();
+      if (!text) return;
+      input.value = "";
+      addBubble(text, true);
+
+      fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error("bad status");
+          return res.json();
+        })
+        .then(function (data) {
+          var reply =
+            data && typeof data.reply === "string"
+              ? data.reply
+              : "Something went wrong—try again in a moment.";
+          addBubble(reply, false);
+        })
+        .catch(function () {
+          addBubble(
+            "I couldn’t reach the server right now. Check your connection and try again.",
+            false
+          );
+        });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mount);
+  } else {
+    mount();
+  }
+})();

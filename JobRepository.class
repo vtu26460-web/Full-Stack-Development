@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal - Connect and Grow</title>
+    <meta name="description" content="Find the best jobs or hire the top talent easily.">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/login">Login</a>
+            <a href="/register" class="btn">SignUp</a>
+        </div>
+    </nav>
+    <div class="container hero">
+        <h1>Discover Your Future</h1>
+        <p>A seamless connection between top talent and leading employers.</p>
+        <div>
+            <a href="/jobs" class="btn">Browse Jobs</a>
+            <a href="/register" class="btn btn-accent" style="margin-left: 1rem;">Post a Job</a>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile - Nexus Jobs</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Nexus Jobs</a>
+        <div class="links">
+            <a href="/dashboard" class="btn">Back to Dashboard</a>
+        </div>
+    </nav>
+    <div class="container" style="display: flex; align-items: center; justify-content: center;">
+        <div class="glass-card" style="width: 100%; max-width: 600px; margin: 4rem auto;">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Edit Profile</h2>
+            <form th:action="@{/profile/edit}" method="post">
+                
+                <!-- Employer Fields -->
+                <div th:if="${user.role.name() == 'EMPLOYER'}">
+                    <div class="form-group">
+                        <label>Company Website</label>
+                        <input type="url" name="website" th:value="${user.website}" class="form-control" placeholder="https://www.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Company Description</label>
+                        <textarea name="companyDescription" class="form-control" rows="8" placeholder="Tell candidates about your company..." th:text="${user.companyDescription}"></textarea>
+                    </div>
+                </div>
+
+                <!-- Student Fields -->
+                <div th:if="${user.role.name() == 'STUDENT'}">
+                    <div class="form-group">
+                        <label>Skills</label>
+                        <input type="text" name="skills" th:value="${user.skills}" class="form-control" placeholder="e.g. Java, Python, React">
+                    </div>
+                    <div class="form-group">
+                        <label>Biography / About Me</label>
+                        <textarea name="bio" class="form-control" rows="8" placeholder="Tell employers about your background and experience..." th:text="${user.bio}"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-accent" style="width: 100%;">Save Profile</button>
+            </form>
+        </div>
+    </div>
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>
